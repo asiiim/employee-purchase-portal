@@ -1,0 +1,38 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+    <data noupdate="0">
+
+        <record model="ir.module.category" id="purchase_portal_category">
+            <field name="description">
+                There are three groups of users: 
+                Purchase Maker, 
+                Purchase Approver
+                and Accounting Team. Each user can only be assigned one access.
+                Accounting Team and Purchase Approver cannot make purchase 
+                request for himself.
+            </field>
+            <field name="sequence">1</field>
+        </record>
+
+        <record id="group_purchase_employee" model="res.groups">
+            <field name="name">Purchase Maker</field>
+            <field name="comment">Request purchase of the product.</field>
+            <field name="category_id" ref="purchase_portal_category"/>
+            <field name="implied_ids" eval="[(4, ref('base.group_portal'))]"/>
+        </record>
+
+        <record id="group_purchase_manager" model="res.groups">
+            <field name="name">Purchase Approver</field>
+            <field name="comment">Approve the purchase requests.</field>
+            <field name="category_id" ref="purchase_portal_category"/>
+            <field name="implied_ids" eval="[(4, ref('base.group_portal'))]"/>
+        </record>
+
+        <record id="group_accounting_team" model="res.groups">
+            <field name="name">Accounting Team</field>
+            <field name="comment">Process the approved the purchase requests in the backend.</field>
+            <field name="category_id" ref="purchase_portal_category"/>
+            <field name="implied_ids" eval="[(4, ref('base.group_user'))]"/>
+        </record>
+    </data>
+</odoo>

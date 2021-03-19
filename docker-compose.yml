@@ -1,0 +1,33 @@
+version: '3'
+services:
+  odoo:
+    container_name: purchase-portal-odoo-14
+    build: .
+    depends_on:
+      - db
+    ports:
+      - "8070:8069"
+    tty: true
+    stdin_open: true
+    volumes:
+      - odoo-web-data:/var/lib/odoo
+      - ./configurations/odoo.conf:/etc/odoo/odoo.conf
+      - ./addons:/mnt/custom_addons
+    restart: always             # run as a service
+
+  db:
+    container_name: db-for-odoo-14
+    image: postgres:13
+    environment:
+      - POSTGRES_DB=postgres
+      - POSTGRES_PASSWORD=odoo
+      - POSTGRES_USER=odoo
+      - PGDATA=/var/lib/postgresql/data/pgdata
+    restart: always             # run as a service
+    volumes:
+      - odoo-db-data:/var/lib/postgresql/data/pgdata
+    ports:
+      - "5433:5432"
+volumes:
+  odoo-web-data:
+  odoo-db-data:
