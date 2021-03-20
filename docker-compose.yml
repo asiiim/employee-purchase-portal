@@ -1,7 +1,7 @@
 version: '3'
 services:
   odoo:
-    container_name: purchase-portal-odoo-14
+    container_name: purchase-portal-odoo-13
     build: .
     depends_on:
       - db
@@ -16,7 +16,7 @@ services:
     restart: always             # run as a service
 
   db:
-    container_name: db-for-odoo-14
+    container_name: db-for-odoo-13
     image: postgres:13
     environment:
       - POSTGRES_DB=postgres

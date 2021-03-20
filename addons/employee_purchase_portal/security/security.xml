@@ -14,18 +14,22 @@
             <field name="sequence">1</field>
         </record>
 
+        <!-- TODO: Make employee and manager portal access -->
+        
         <record id="group_purchase_employee" model="res.groups">
             <field name="name">Purchase Maker</field>
             <field name="comment">Request purchase of the product.</field>
             <field name="category_id" ref="purchase_portal_category"/>
-            <field name="implied_ids" eval="[(4, ref('base.group_portal'))]"/>
+            <!-- <field name="implied_ids" eval="[(4, ref('base.group_portal'))]"/> -->
+            <field name="implied_ids" eval="[(4, ref('base.group_user'))]"/>
         </record>
 
         <record id="group_purchase_manager" model="res.groups">
             <field name="name">Purchase Approver</field>
             <field name="comment">Approve the purchase requests.</field>
             <field name="category_id" ref="purchase_portal_category"/>
-            <field name="implied_ids" eval="[(4, ref('base.group_portal'))]"/>
+            <!-- <field name="implied_ids" eval="[(4, ref('base.group_portal'))]"/> -->
+            <field name="implied_ids" eval="[(4, ref('base.group_user'))]"/>
         </record>
 
         <record id="group_accounting_team" model="res.groups">
