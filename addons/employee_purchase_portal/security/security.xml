@@ -3,6 +3,7 @@
     <data noupdate="0">
 
         <record model="ir.module.category" id="purchase_portal_category">
+            <field name="name">Purchase Portal</field>
             <field name="description">
                 There are three groups of users: 
                 Purchase Maker, 

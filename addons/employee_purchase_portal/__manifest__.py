@@ -14,10 +14,11 @@
     'category': 'Purchase',
     'author': 'Aashim Bajracharya',
     'email': 'ashimbazracharya@gmail.com',
-    'depends' : ['purchase_isolated_rfq', 'portal'],
+    'depends' : ['purchase_isolated_rfq', 'portal', 'product'],
     'data': [
-        # 'security/security.xml',
+        'security/security.xml',
         # 'security/ir.model.access.csv',
+        'views/purchase.xml'
     ],
     'qweb': [
     ],
