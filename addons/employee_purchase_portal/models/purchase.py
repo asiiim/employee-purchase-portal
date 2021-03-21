@@ -25,7 +25,7 @@ class PurchaseOrder(models.Model):
     # Boolean field to store the rejected RFQ
     rejected_rfq = fields.Boolean("Rejected", copy=False, default=False)
 
-    # TODO: Domain the vendor list as per the selected product.
+    # Domain the vendor list as per the selected product.
     portal_product_id = fields.Many2one('product.product', string='Product', 
         domain=[('purchase_ok', '=', True)], change_default=True)
     related_product_template = fields.Many2one(related='portal_product_id.product_tmpl_id', 
@@ -34,6 +34,12 @@ class PurchaseOrder(models.Model):
         change_default=True, 
         tracking=True,
         domain="[('product_tmpl_id', '=', related_product_template)]")
+
+    # For now let's assign the vendor field with on_change of supplier_info
+    # Need to called the model to set the value from the portal later.
+    @api.onchange('supplier_info')
+    def on_change_supplier(self):
+        self.partner_id = self.supplier_info.name
     
     # TODO: Override the method "action_convert_to_order"
     """ 
