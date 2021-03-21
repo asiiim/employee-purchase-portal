@@ -1,6 +1,10 @@
 from odoo import _, api, fields, models
 from odoo.exceptions import UserError
 
+import logging
+
+_logger = logging.getLogger(__name__)
+
 # -*- coding: utf-8 -*-
 
 class PurchaseOrder(models.Model):
@@ -22,11 +26,12 @@ class PurchaseOrder(models.Model):
     rejected_rfq = fields.Boolean("Rejected", copy=False, default=False)
 
     # TODO: Domain the vendor list as per the selected product.
-    portal_product_id = fields.Many2one('product.product', string='Product', domain=[('purchase_ok', '=', True)], change_default=True)
-    available_vendor = fields.Many2one('res.partner', string='Available Vendor', 
+    portal_product_id = fields.Many2one('product.product', string='Product', 
+        domain=[('purchase_ok', '=', True)], change_default=True)
+    supplier_info = fields.Many2one('product.supplierinfo', string='Available Vendor', 
         change_default=True, 
-        tracking=True, 
-        domain="[('id', 'in', portal_product_id.seller_ids.ids)]")
+        tracking=True,
+        domain="[('product_id', '=', portal_product_id)]", oldname="available_vendor")
     
     # TODO: Override the method "action_convert_to_order"
     """ 
