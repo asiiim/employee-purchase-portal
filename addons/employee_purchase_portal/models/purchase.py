@@ -42,11 +42,19 @@ class PurchaseOrder(models.Model):
         self.partner_id = self.supplier_info.name
     
     # TODO: Override the method "action_convert_to_order"
-    """ 
-        - Check if the user group is "Accounting Team".
-        - Make sure the portal state is "Approved" and change
-            the portal_state to "Purchase In Progress".
-    """
+    def action_convert_to_order(self):
+        """ 
+            - Check if the user group is "Accounting Team".
+            - Make sure the portal state is "Approved" and change
+                the portal_state to "Purchase In Progress".
+            - Check the group of the current user.
+        """
+        accounting_team_group_ref = \
+            self.env.ref('employee_purchase_portal.group_accounting_team')
+
+        if self.env.user.has_group(ccounting_team_group_ref):
+
+            result = super(PurchaseOrder, self).action_convert_to_order()
 
     # TODO: Method to Approve or Reject RFQ by Manager Group Users
     """
