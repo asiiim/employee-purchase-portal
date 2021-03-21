@@ -28,10 +28,12 @@ class PurchaseOrder(models.Model):
     # TODO: Domain the vendor list as per the selected product.
     portal_product_id = fields.Many2one('product.product', string='Product', 
         domain=[('purchase_ok', '=', True)], change_default=True)
+    related_product_template = fields.Many2one(related='portal_product_id.product_tmpl_id', 
+        string='Product Template', store=True)
     supplier_info = fields.Many2one('product.supplierinfo', string='Available Vendor', 
         change_default=True, 
         tracking=True,
-        domain="[('product_id', '=', portal_product_id)]", oldname="available_vendor")
+        domain="[('product_tmpl_id', '=', related_product_template)]")
     
     # TODO: Override the method "action_convert_to_order"
     """ 

@@ -6,6 +6,7 @@
         <field name="arch" type="xml">
             <xpath expr="//field[@name='partner_ref']" position="after">
                 <field name="portal_product_id"/>
+                <field name="related_product_template" invisible="1"/>
                 <field name="supplier_info"/>
             </xpath>
         </field>
