@@ -4,25 +4,30 @@
         <field name="model">purchase.order</field>
         <field name="inherit_id" ref="purchase_isolated_rfq.purchase_order_form" />
         <field name="arch" type="xml">
+            <xpath expr="/form/header" position="after">
+                <header name="portal_rfq">
+                    <field name="portal_state" widget="statusbar"/>
+                    <button name="button_approve" 
+                    string="Approve RFQ" 
+                    type="object" 
+                    attrs="{'invisible': [('portal_state', 'in', ('approved', 'rejected', 'purchase_in_progress', 'ready_to_pick', 'done'))]}"/>
+                </header>
+            </xpath>
             <xpath expr="//field[@name='partner_id']" position="before">
                 <field name="portal_product_id"/>
                 <field name="related_product_template" invisible="1"/>
                 <field name="supplier_info"/>
+                <field name="allowed_product_categories" invisible="1"/>
             </xpath>
 
             <!-- 
-                Override action to convert method so that it is accessed by
-                only the users of the group "Accounting Team" 
+                Make this method visibile if the portal state is in "approved". 
             -->
-            <!-- <button name="action_convert_to_order" position="replace">
-                <button
-                        name="action_convert_to_order"
-                        states="draft"
-                        class="oe_highlight"
-                        type="object"
-                        string="Process Order"
-                        groups="employee_purchase_portal.group_accounting_team"/>
-            </button> -->
+            <button name="action_convert_to_order" position="attributes">
+                <attribute name="attrs">
+                    {'invisible': [('portal_state', '!=', 'approved')]}
+                </attribute>
+            </button>
         </field>
     </record>
 </odoo>
