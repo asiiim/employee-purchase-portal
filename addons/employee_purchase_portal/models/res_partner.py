@@ -12,4 +12,5 @@ class ResPartner(models.Model):
     """
         - Type of the field is Many2many
     """
-    allowed_product_categories = fields.Many2many('product.category', string='Parent Category')
+    allowed_product_categories = fields.Many2many('product.category', 
+        string='Allowed Product Categories')
