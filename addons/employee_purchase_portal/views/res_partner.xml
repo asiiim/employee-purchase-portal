@@ -1,0 +1,12 @@
+<odoo>
+    <record id="inherit_partner_form_purchase_portal" model="ir.ui.view">
+        <field name="name">Inherit Partner Form Purchase Portal</field>
+        <field name="model">res.partner</field>
+        <field name="inherit_id" ref="base.view_partner_form"/>
+        <field name="arch" type="xml">
+            <xpath expr="//field[@name='vat']" position="after">
+                <field name="allowed_product_categories" widget="many2many_tags"/>
+            </xpath>
+        </field>
+    </record>
+</odoo>

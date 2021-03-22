@@ -8,7 +8,8 @@ class ResPartner(models.Model):
     _inherit = "res.partner"
 
     
-    # TODO: Add a field called "Allowed Product Categories"
+    # Add a field called "Allowed Product Categories"
     """
         - Type of the field is Many2many
     """
+    allowed_product_categories = fields.Many2many('product.category', string='Parent Category')
