@@ -65,18 +65,27 @@ class PurchaseOrder(models.Model):
         if self.env.user.has_group('employee_purchase_portal.group_accounting_team'):
 
             result = super(PurchaseOrder, self).action_convert_to_order()
+            self.write({'portal_state': 'purchase_in_progress'})
+            return result
         else:
             raise UserError("You are not allowed to make Purchase Order.\nPlease consult the Accounting Team.")
 
+    # TODO: Method to change the portal state to ready to pick
+    """
+        - Override the method 
+        - Change the state to ready to pick 
+    """
+
 
     # Method to Approve or Reject RFQ by Manager Group Users
+    # TODO: Issue: This method is disturbing the method button_confirm()
     def button_approve(self):
         """
             - Make sure this method is accessible to ony Manager group
             - Make sure the portal_state of the RFQ is "Draft"
             - Change the state to "Approve" or "Reject".
         """
-        if self.env.user.has_group('employee_purchase_portal.group_purchase_manager') \
+        if self.env.user.has_group('employee_purchase_portal.group_purchase_approver') \
             and self.portal_state == "draft":
             self.write({'portal_state': 'approved'})
         else:
@@ -85,7 +94,7 @@ class PurchaseOrder(models.Model):
 
     # Override cancel action to change the portal state  to "rejected".
     def button_cancel(self):
-        if self.env.user.has_group('employee_purchase_portal.group_purchase_manager'):
+        if self.env.user.has_group('employee_purchase_portal.group_purchase_approver'):
             result = super(PurchaseOrder, self).button_cancel()
             self.write({
                 'portal_state': 'rejected'
