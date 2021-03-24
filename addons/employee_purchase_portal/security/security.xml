@@ -21,7 +21,6 @@
             <field name="name">Purchase Maker</field>
             <field name="comment">Request purchase of the product.</field>
             <field name="category_id" ref="purchase_portal_category"/>
-            <!-- <field name="implied_ids" eval="[(4, ref('base.group_portal'))]"/> -->
             <field name="implied_ids" eval="[(4, ref('base.group_user'))]"/>
         </record>
 
@@ -29,7 +28,6 @@
             <field name="name">Purchase Approver</field>
             <field name="comment">Approve the purchase requests.</field>
             <field name="category_id" ref="purchase_portal_category"/>
-            <!-- <field name="implied_ids" eval="[(4, ref('base.group_portal'))]"/> -->
             <field name="implied_ids" eval="[(4, ref('group_purchase_maker'))]"/>
         </record>
 

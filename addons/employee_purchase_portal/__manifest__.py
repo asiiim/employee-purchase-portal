@@ -19,7 +19,8 @@
         'security/security.xml',
         # 'security/ir.model.access.csv',
         'views/purchase.xml',
-        'views/res_partner.xml'
+        'views/res_partner.xml',
+        'views/purchase_portal_render.xml'
     ],
     'qweb': [
     ],
