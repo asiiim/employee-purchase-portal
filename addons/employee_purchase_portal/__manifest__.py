@@ -14,7 +14,7 @@
     'category': 'Purchase',
     'author': 'Aashim Bajracharya',
     'email': 'ashimbazracharya@gmail.com',
-    'depends' : ['purchase_isolated_rfq', 'portal', 'product'],
+    'depends' : ['purchase_isolated_rfq', 'portal', 'product', 'web', 'contacts'],
     'data': [
         'security/security.xml',
         # 'security/ir.model.access.csv',

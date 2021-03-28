@@ -33,6 +33,18 @@
                     class="oe_highlight"
                     type="object"
                     string="Convert to Order"/>
+                <button
+                    name="button_pick_ready"
+                    attrs="{'invisible': [('portal_state', '!=', 'purchase_in_progress')]}"
+                    class="oe_highlight"
+                    type="object"
+                    string="Ready to Pick"/>\
+                <button
+                    name="button_request_done"
+                    attrs="{'invisible': [('portal_state', '!=', 'ready_to_pick')]}"
+                    class="oe_highlight"
+                    type="object"
+                    string="Done"/>
             </button>
         </field>
     </record>

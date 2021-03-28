@@ -1,14 +1,20 @@
 <?xml version="1.0" encoding="utf-8"?>
 <odoo>
-  <template id="aashim_portal_purchase_orders" name="My Purchases &amp; Requests">
+  <template id="purchase.portal_my_purchase_orders" name="My Purchases &amp; Requests">
     <t t-call="portal.portal_layout">
       <t t-call="portal.portal_searchbar">
         <t t-set="title">My Purchase Requests &amp; Orders</t>
       </t>
+      <div>
+        <button class="clearfix">
+          <a t-attf-href="/my/purchase/request_form">Create Request</a>
+        </button>
+      </div>
       <t t-if="orders" t-call="portal.portal_table">
         <thead>
           <tr class="active">
             <th>Purchase Orders #</th>
+            <th>Order Status</th>
             <th>Order Date</th>
             <th></th>
             <th>Total</th>
@@ -17,14 +23,15 @@
         <tbody>
           <t t-foreach="orders" t-as="order">
             <tr>
-              <td><a t-attf-href="/employee/order_requests"><t t-esc="order.name"/></a></td>
+              <td><a t-attf-href="/my/purchase/#{order.id}?#{keep_query()}"><t t-esc="order.name"/></a></td>
+              <td><span t-field="order.portal_state"/></td>
               <td><span t-field="order.date_order"/></td>
               <td>
-                <t t-if="order.invoice_status == 'to invoice'">
-                  <span class="badge badge-info"><i class="fa fa-fw fa-file-text"/> Waiting for Bill</span>
+                <t t-if="order.portal_state == 'approved'">
+                  <span class="badge badge-info"><i class="fa fa-fw fa-file-text"/> Approved</span>
                 </t>
-                <t t-if="order.state == 'cancel'">
-                  <span class="badge badge-secondary"><i class="fa fa-fw fa-remove"/> Cancelled</span>
+                <t t-if="order.portal_state == 'rejected'">
+                  <span class="badge badge-secondary"><i class="fa fa-fw fa-remove"/> Rejected</span>
                 </t>
               </td>
               <td><span t-field="order.amount_total" t-options='{"widget": "monetary", "display_currency": order.currency_id}'/></td>
@@ -35,7 +42,8 @@
     </t>
   </template>
 
-  <template id="aashim_portal_purchase_order_details" name="Order Details">
+
+  <template id="purchase.portal_my_purchase_order" name="Order Details">
     <t t-call="portal.portal_layout">
       <t t-set="purchase_order" t-value="order"/>
       <div id="optional_placeholder"></div>
@@ -46,14 +54,55 @@
                 <div class="col-lg-12">
                   <h4>
                     Order No.
-                    <span t-esc="order.name"/>
+                    <span t-esc="order.name"/> | 
+
+                    Status: 
+                    <span t-esc="order.portal_state"/>
                   </h4>
+                </div>
+                <div class="col-lg-12">
+                  <t t-if="order.portal_state == 'draft'">
+                    <form t-attf-action="/my/purchase/approve/{{order.id}}" method="POST">
+                      <input type="hidden" name="csrf_token" t-att-value="request.csrf_token()"/>
+                      <div class="clearfix">
+                        <button type="submit" class="btn btn-primary float-left mb32 ">
+                          <span class="fa fa-thumbs-o-up"/> Approve
+                        </button>
+                      </div>
+                    </form>
+                    <form t-attf-action="/my/purchase/reject/{{order.id}}" method="POST">
+                      <input type="hidden" name="csrf_token" t-att-value="request.csrf_token()"/>
+                      <div class="clearfix">
+                        <button type="submit" class="btn btn-primary float-left mb32 ">
+                          <span class="fa fa-minus-circle"/> Reject
+                        </button>
+                      </div>
+                    </form>
+                  </t>
                 </div>
               </div>
             </div>
             <div class="card-body">
               <div class="mb8">
+                  <strong>Employee Name:</strong> <span t-field="order.user_id.partner_id.name"/>
+              </div>
+              <div class="mb8">
+                <strong>Email:</strong> <span t-field="order.user_id.partner_id.email"/>
+              </div>
+              <div class="mb8">
+                <strong>Cell:</strong> <span t-field="order.user_id.partner_id.mobile"/>
+              </div>
+              <div class="mb8">
+                <strong>Phone:</strong> <span t-field="order.user_id.partner_id.phone"/>
+              </div>
+              <div class="mb8">
                   <strong>Date:</strong> <span t-field="order.date_order" t-options='{"widget": "date"}'/>
+              </div>
+              <div class="mb8">
+                <strong>Address:</strong> 
+                <span t-field="order.user_id.partner_id.street"/>, 
+                <span t-field="order.user_id.partner_id.street2"/>, 
+                <span t-field="order.user_id.partner_id.city"/>
               </div>
               <div class="row">
                 <div class="col-lg-6">
@@ -148,6 +197,76 @@
             </div>
           </div>
       </div>
+      <div class="oe_structure mb32"/>
+    </t>
+  </template>
+
+
+  <template id="portal_create_purchase_order" name="Create Request">
+    <t t-call="portal.portal_layout">
+      <t t-call="portal.portal_searchbar">
+        <t t-set="title">Create Purchase Request</t>
+      </t>
+      <form t-attf-action="/my/purchase/vendor/" method="POST">
+        <input type="hidden" name="csrf_token" t-att-value="request.csrf_token()"/>
+        <div class="row o_portal_details">
+          <div class="col-lg-12">
+            <div class="row">
+              <div t-attf-class="form-group col-xl-6">
+                  <label class="col-form-label" for="portal_product_id">Product</label>
+                  <select name="portal_product_id" required="True" class="form-control link-style">
+                    <t t-foreach='allowed_products' t-as='product'>
+                      <option t-esc='product.name' t-att-value='product.id'/>
+                    </t>
+                  </select>
+              </div>
+              <div t-attf-class="form-group col-xl-6">
+                  <label for="product_qty" class="control-label">Quantity</label>
+                  <input type="number" max="3" min="1" name="product_qty" id="product_qty" class="form-control" required="required"/>
+              </div>
+            </div>
+            <div class="clearfix">
+              <button type="submit" class="btn btn-primary float-left mb32 ">
+                  Next <span class="fa fa-long-arrow-right" />
+              </button>
+            </div>
+          </div>
+        </div>
+      </form>
+      <div class="oe_structure mb32"/>
+    </t>
+  </template>
+
+
+  <template id="portal_select_vendor" name="Select Available Vendor">
+    <t t-call="portal.portal_layout">
+      <t t-call="portal.portal_searchbar">
+        <t t-set="title">Select Available Vendor</t>
+      </t>
+      <form t-attf-action="/my/purchase/create/" method="POST">
+        <input type="hidden" name="csrf_token" t-att-value="request.csrf_token()"/>
+        <input type="hidden" name="selected_product_id" id="selected_product_id" t-att-value="selected_product_id" class="form-control"/>
+        <input type="hidden" name="product_qty" id="product_qty" t-att-value="product_qty" class="form-control"/>
+        <div class="row o_portal_details">
+          <div class="col-lg-12">
+            <div class="row">
+              <div t-attf-class="form-group col-xl-6">
+                  <label class="col-form-label" for="supplier_info">Vendor</label>
+                  <select name="supplier_info" required="True" class="form-control link-style">
+                    <t t-foreach='vendors' t-as='vendor'>
+                      <option t-esc='vendor.name.name' t-att-value='vendor.id'/>
+                    </t>
+                  </select>
+              </div>
+            </div>
+            <div class="clearfix">
+              <button type="submit" class="btn btn-primary float-left mb32 ">
+                  Buy Request<span class="fa fa-long-arrow-right" />
+              </button>
+            </div>
+          </div>
+        </div>
+      </form>
       <div class="oe_structure mb32"/>
     </t>
   </template>

@@ -6,7 +6,6 @@ import logging
 from odoo import _, api, fields, models
 from odoo.exceptions import UserError
 
-
 _logger = logging.getLogger(__name__)
 
 
@@ -29,7 +28,8 @@ class PurchaseOrder(models.Model):
         string="Purchase Maker",
         store=True)
 
-    allowed_product_categories = fields.Many2many(related="purchase_maker.allowed_product_categories")
+    allowed_product_categories = fields.Many2many(
+        related="purchase_maker.allowed_product_categories")
 
     portal_product_id = fields.Many2one('product.product', 
         string='Portal Product', 
@@ -49,7 +49,6 @@ class PurchaseOrder(models.Model):
         domain="[('product_tmpl_id', '=', related_product_template)]")
 
 
-
     # For now let's assign the vendor field with on_change of supplier_info
     # Need to called the model to set the value from the portal later.
     @api.onchange('supplier_info')
@@ -58,7 +57,7 @@ class PurchaseOrder(models.Model):
 
 
     # Return values for the purchase order line 
-    def _get_order_line_vals(self, product):
+    def get_order_line_vals(self, product):
         """Hook to allow custom line values to be put on the newly
         created or edited lines."""
         
@@ -72,9 +71,9 @@ class PurchaseOrder(models.Model):
             'product_qty': self.product_qty,
             'product_uom': product.uom_id.id,
             'order_id': self.purchase_order_id,
+            'taxes_id': product.taxes_id,
             'date_planned': self.date_order
         }
-
 
     
     # Override the method "action_convert_to_order"
@@ -90,28 +89,36 @@ class PurchaseOrder(models.Model):
 
             result = super(PurchaseOrder, self).action_convert_to_order()
             self.write({'portal_state': 'purchase_in_progress'})
-
-            # Even set the portal state of the duplicated PO to 
-            # "purchase_in_progress"
-            self.env['purchase.order'].search([('id', '=', \
-                self.purchase_order_id.id)]).write({'portal_state': 'purchase_in_progress'})
-
-            # Create order line for the converted PO
-            order_lines = [(5, 0, 0)]
-            line_vals = self._get_order_line_vals(self.portal_product_id)
-            order_lines.append((0, 0, line_vals))
-            self.purchase_order_id.order_line = order_lines
+            self.purchase_order_id.write({'portal_state': 'purchase_in_progress'})
             
             return result
         else:
-            raise UserError("You are not allowed to make Purchase Order. Please consult the Accounting Team.")
+            raise UserError(
+                "You are not allowed to make Purchase Order. Please consult the Accounting Team."
+            )
 
 
-    # TODO: Method to change the portal state to ready to pick
-    """
-        - Override the method 
-        - Change the state to ready to pick 
-    """
+    # Method to set the portal state to "Ready to Pick"
+    def button_pick_ready(self):
+        if not self.env.user.has_group('employee_purchase_portal.group_accounting_team'):
+            raise UserError("You don't have access to make pick ready for this order.")
+        elif self.portal_state != "purchase_in_progress":
+            raise UserError("This order is not in progress.")
+        else:
+            self.write({'portal_state': 'ready_to_pick'})
+            self.purchase_order_id.write({'portal_state': 'ready_to_pick'})
+
+
+    # Method to set the portal state to "Done"
+    def button_request_done(self):
+        if not self.env.user.has_group('employee_purchase_portal.group_accounting_team'):
+            raise UserError("You don't have access to make this order done.")
+        elif self.portal_state != "ready_to_pick":
+            raise UserError("This order is not ready to be picked yet.")
+        else:
+            self.write({'portal_state': 'done'})
+            self.purchase_order_id.write({'portal_state': 'done'})
+            self.purchase_order_id.button_done()
 
 
     # Method to Approve or Reject RFQ by Manager Group Users
@@ -154,13 +161,12 @@ class PurchaseOrder(models.Model):
                     time_delta = today - order_date
                     
                     # No. of day since last rejection from now.
-                    rejected_days = math.ceil(time_delta.days + float(time_delta.seconds) / 86400) + 1.0
+                    rejected_days = math.ceil(time_delta.days 
+                        + float(time_delta.seconds) / 86400) + 1.0
                     
                     if  rejected_days < 30:
-                        raise UserError('Sorry, your last rejected order is still less than a month.')
+                        raise UserError(
+                            'Sorry, your last rejected order is still less than a month.'
+                        )
         return super().create(vals)
-    
-
-    # TODO: Make domain to view only self list of order by the employee
-
 

@@ -14,8 +14,6 @@
             </field>
             <field name="sequence">1</field>
         </record>
-
-        <!-- TODO: Make employee and manager portal access -->
         
         <record id="group_purchase_maker" model="res.groups">
             <field name="name">Purchase Maker</field>
